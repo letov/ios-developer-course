@@ -14,6 +14,9 @@ class CustomFlowLayout: UICollectionViewLayout {
     static let xCellPadding: CGFloat = 8
     static let yCellPadding: CGFloat = 8
     
+    let firstPhotoHeight: CGFloat = 300
+    let defaultPhotoHeight: CGFloat = 200
+    
     private var cache : [UICollectionViewLayoutAttributes] = []
     
     private var contentWidth : CGFloat{
@@ -50,7 +53,7 @@ class CustomFlowLayout: UICollectionViewLayout {
   
             let indexPath = IndexPath(item: item, section: 0)
           
-            let photoHeight = item == 0 ? CGFloat(300) : CGFloat(200)
+            let photoHeight = item == 0 ? self.firstPhotoHeight : self.defaultPhotoHeight
             let height = CustomFlowLayout.yCellPadding * 2 + photoHeight
             let frame = CGRect(x: xOffset[column],
                                y: yOffset[column],
