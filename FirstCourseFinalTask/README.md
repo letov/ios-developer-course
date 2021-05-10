@@ -1,1 +1,1 @@
-# create 2 classes (usersStorageClass, postsStorageClass) with protocol support (UsersStorageProtocol, PostProtocol)
+Create 2 classes (usersStorageClass, postsStorageClass) with protocol support (UsersStorageProtocol, PostProtocol)
