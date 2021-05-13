@@ -1,0 +1,319 @@
+import Cocoa
+import FirstCourseFinalTaskChecker
+import FirstCourseFinalTaskChecker.Swift
+import Foundation
+
+//
+//  FirstCourseFinalTaskChecker.h
+//  FirstCourseFinalTaskChecker
+//
+//  Copyright © 2017 E-Legion. All rights reserved.
+//
+
+//! Project version number for FirstCourseFinalTaskChecker.
+public var FirstCourseFinalTaskCheckerVersionNumber: Double
+/// Класс для проверки решения
+public class Checker {
+
+    /// Принимает на вход типы двух классов, поддерживающих UsersStorageProtocol
+    /// и PostsStorageProtocol соответственно.
+    public init(usersStorageClass: FirstCourseFinalTaskChecker.UsersStorageProtocol.Type, postsStorageClass: FirstCourseFinalTaskChecker.PostsStorageProtocol.Type)
+
+    /// Запускает проверку.
+    public func run()
+}
+
+/// Дженерик идентификатор
+public struct GenericIdentifier<T> : RawRepresentable, Hashable, ExpressibleByStringLiteral {
+
+    /// The corresponding value of the raw type.
+    ///
+    /// A new instance initialized with `rawValue` will be equivalent to this
+    /// instance. For example:
+    ///
+    ///     enum PaperSize: String {
+    ///         case A4, A5, Letter, Legal
+    ///     }
+    ///
+    ///     let selectedSize = PaperSize.Letter
+    ///     print(selectedSize.rawValue)
+    ///     // Prints "Letter"
+    ///
+    ///     print(selectedSize == PaperSize(rawValue: selectedSize.rawValue)!)
+    ///     // Prints "true"
+    public let rawValue: String
+
+    /// The hash value.
+    ///
+    /// Hash values are not guaranteed to be equal across different executions of
+    /// your program. Do not save hash values to use during a future execution.
+    ///
+    /// - Important: `hashValue` is deprecated as a `Hashable` requirement. To
+    ///   conform to `Hashable`, implement the `hash(into:)` requirement instead.
+    public var hashValue: Int { get }
+
+    /// Creates a new instance with the specified raw value.
+    ///
+    /// If there is no value of the type that corresponds with the specified raw
+    /// value, this initializer returns `nil`. For example:
+    ///
+    ///     enum PaperSize: String {
+    ///         case A4, A5, Letter, Legal
+    ///     }
+    ///
+    ///     print(PaperSize(rawValue: "Legal"))
+    ///     // Prints "Optional("PaperSize.Legal")"
+    ///
+    ///     print(PaperSize(rawValue: "Tabloid"))
+    ///     // Prints "nil"
+    ///
+    /// - Parameter rawValue: The raw value to use for the new instance.
+    public init(rawValue: String)
+
+    /// Creates an instance initialized to the given string value.
+    ///
+    /// - Parameter value: The value of the new instance.
+    public init(stringLiteral value: String)
+
+    /// Creates an instance initialized to the given value.
+    ///
+    /// - Parameter value: The value of the new instance.
+    public init(unicodeScalarLiteral value: String)
+
+    /// Creates an instance initialized to the given value.
+    ///
+    /// - Parameter value: The value of the new instance.
+    public init(extendedGraphemeClusterLiteral value: String)
+
+    /// A type that represents a string literal.
+    ///
+    /// Valid types for `StringLiteralType` are `String` and `StaticString`.
+    public typealias StringLiteralType = String
+
+    /// A type that represents an extended grapheme cluster literal.
+    ///
+    /// Valid types for `ExtendedGraphemeClusterLiteralType` are `Character`,
+    /// `String`, and `StaticString`.
+    public typealias ExtendedGraphemeClusterLiteralType = String
+
+    /// A type that represents a Unicode scalar literal.
+    ///
+    /// Valid types for `UnicodeScalarLiteralType` are `Unicode.Scalar`,
+    /// `Character`, `String`, and `StaticString`.
+    public typealias UnicodeScalarLiteralType = String
+
+    /// The raw type that can be used to represent all values of the conforming
+    /// type.
+    ///
+    /// Every distinct value of the conforming type has a corresponding unique
+    /// value of the `RawValue` type, but there may be values of the `RawValue`
+    /// type that don't have a corresponding value of the conforming type.
+    public typealias RawValue = String
+}
+
+/// Модель публикации, используемая для инициализации хранилища стартовыми данными
+public struct PostInitialData {
+
+    public let id: FirstCourseFinalTaskChecker.GenericIdentifier<FirstCourseFinalTaskChecker.PostProtocol>
+
+    public let author: FirstCourseFinalTaskChecker.GenericIdentifier<FirstCourseFinalTaskChecker.UserProtocol>
+
+    public let description: String
+
+    public let imageURL: URL
+
+    public let createdTime: Date
+}
+
+/// Протокол, описывающий модель публикации
+public protocol PostProtocol {
+
+    typealias Identifier = FirstCourseFinalTaskChecker.GenericIdentifier<FirstCourseFinalTaskChecker.PostProtocol>
+
+    /// Идентификатор публикации
+    var id: Self.Identifier { get }
+
+    /// Идентификатор автора публикации
+    var author: FirstCourseFinalTaskChecker.GenericIdentifier<FirstCourseFinalTaskChecker.UserProtocol> { get }
+
+    /// Описание публикации
+    var description: String { get }
+
+    /// Ссылка на изображение
+    var imageURL: URL { get }
+
+    /// Дата создания публикации
+    var createdTime: Date { get }
+
+    /// Свойство, отображающее ставил ли текущий пользователь лайк на эту публикацию
+    var currentUserLikesThisPost: Bool { get }
+
+    /// Количество лайков на этой публикации
+    var likedByCount: Int { get }
+}
+
+/// Протокол, описывающий хранилище публикаций
+public protocol PostsStorageProtocol : AnyObject {
+
+    /// Инициализатор хранилища. Принимает на вход массив публикаций, массив лайков в виде
+    /// кортежей в котором первый - это ID пользователя, поставившего лайк, а второй - ID публикации
+    /// на которой должен стоять этот лайк и ID текущего пользователя.
+    init(posts: [FirstCourseFinalTaskChecker.PostInitialData], likes: [(FirstCourseFinalTaskChecker.GenericIdentifier<FirstCourseFinalTaskChecker.UserProtocol>, FirstCourseFinalTaskChecker.GenericIdentifier<FirstCourseFinalTaskChecker.PostProtocol>)], currentUserID: FirstCourseFinalTaskChecker.GenericIdentifier<FirstCourseFinalTaskChecker.UserProtocol>)
+
+    /// Количество публикаций в хранилище.
+    var count: Int { get }
+
+    /// Возвращает публикацию с переданным ID.
+    ///
+    /// - Parameter postID: ID публикации которую нужно вернуть.
+    /// - Returns: Публикация если она была найдена.
+    /// nil если такой публикации нет в хранилище.
+    func post(with postID: FirstCourseFinalTaskChecker.GenericIdentifier<FirstCourseFinalTaskChecker.PostProtocol>) -> FirstCourseFinalTaskChecker.PostProtocol?
+
+    /// Возвращает все публикации пользователя с переданным ID.
+    ///
+    /// - Parameter authorID: ID пользователя публикации которого нужно вернуть.
+    /// - Returns: Массив публикаций.
+    /// Пустой массив если пользователь еще ничего не опубликовал.
+    func findPosts(by authorID: FirstCourseFinalTaskChecker.GenericIdentifier<FirstCourseFinalTaskChecker.UserProtocol>) -> [FirstCourseFinalTaskChecker.PostProtocol]
+
+    /// Возвращает все публикации, содержащие переданную строку.
+    ///
+    /// - Parameter searchString: Строка для поиска.
+    /// - Returns: Массив публикаций.
+    /// Пустой массив если нет таких публикаций.
+    func findPosts(by searchString: String) -> [FirstCourseFinalTaskChecker.PostProtocol]
+
+    /// Ставит лайк от текущего пользователя на публикацию с переданным ID.
+    ///
+    /// - Parameter postID: ID публикации на которую нужно поставить лайк.
+    /// - Returns: true если операция выполнена упешно или пользователь уже поставил лайк
+    /// на эту публикацию.
+    /// false в случае если такой публикации нет.
+    func likePost(with postID: FirstCourseFinalTaskChecker.GenericIdentifier<FirstCourseFinalTaskChecker.PostProtocol>) -> Bool
+
+    /// Удаляет лайк текущего пользователя у публикации с переданным ID.
+    ///
+    /// - Parameter postID: ID публикации у которой нужно удалить лайк.
+    /// - Returns: true если операция выполнена успешно или пользователь и так не ставил лайк
+    /// на эту публикацию.
+    /// false в случае если такой публикации нет.
+    func unlikePost(with postID: FirstCourseFinalTaskChecker.GenericIdentifier<FirstCourseFinalTaskChecker.PostProtocol>) -> Bool
+
+    /// Возвращает ID пользователей поставивших лайк на публикацию.
+    ///
+    /// - Parameter postID: ID публикации лайки на которой нужно искать.
+    /// - Returns: Массив ID пользователей.
+    /// Пустой массив если никто еще не поставил лайк на эту публикацию.
+    /// nil если такой публикации нет в хранилище.
+    func usersLikedPost(with postID: FirstCourseFinalTaskChecker.GenericIdentifier<FirstCourseFinalTaskChecker.PostProtocol>) -> [FirstCourseFinalTaskChecker.GenericIdentifier<FirstCourseFinalTaskChecker.UserProtocol>]?
+}
+
+/// Модель пользователя, используемая для инициализации хранилища стартовыми данными
+public struct UserInitialData {
+
+    public init(id: FirstCourseFinalTaskChecker.GenericIdentifier<FirstCourseFinalTaskChecker.UserProtocol>, username: String, fullName: String, avatarURL: URL?)
+
+    public let id: FirstCourseFinalTaskChecker.GenericIdentifier<FirstCourseFinalTaskChecker.UserProtocol>
+
+    public let username: String
+
+    public let fullName: String
+
+    public let avatarURL: URL?
+}
+
+/// Протокол, описывающий модель пользователя
+public protocol UserProtocol {
+
+    typealias Identifier = FirstCourseFinalTaskChecker.GenericIdentifier<FirstCourseFinalTaskChecker.UserProtocol>
+
+    /// Идентификатор пользователя
+    var id: Self.Identifier { get }
+
+    /// Имя аккаунта пользователя
+    var username: String { get }
+
+    /// Полное имя пользователя пользователя
+    var fullName: String { get }
+
+    /// Ссылка на аватар пользователя
+    var avatarURL: URL? { get }
+
+    /// Свойство, отображающее подписан ли текущий пользователь на этого пользователя
+    var currentUserFollowsThisUser: Bool { get }
+
+    /// Свойство, отображающее подписан ли этот пользователь на текущего пользователя
+    var currentUserIsFollowedByThisUser: Bool { get }
+
+    /// Количество подписок этого пользователя
+    var followsCount: Int { get }
+
+    /// Количество подписчиков этого пользователя
+    var followedByCount: Int { get }
+}
+
+/// Протокол, описывающий хранилище пользователей
+public protocol UsersStorageProtocol : AnyObject {
+
+    /// Инициализатор хранилища. Принимает на вход массив пользователей, массив подписок в
+    /// виде кортежей в котором первый элемент это ID, а второй - ID пользователя на которого он
+    /// должен быть подписан и ID текущего пользователя.
+    /// Инициализация может завершится с ошибкой если пользователя с переданным ID
+    /// нет среди пользователей в массиве users.
+    init?(users: [FirstCourseFinalTaskChecker.UserInitialData], followers: [(FirstCourseFinalTaskChecker.GenericIdentifier<FirstCourseFinalTaskChecker.UserProtocol>, FirstCourseFinalTaskChecker.GenericIdentifier<FirstCourseFinalTaskChecker.UserProtocol>)], currentUserID: FirstCourseFinalTaskChecker.GenericIdentifier<FirstCourseFinalTaskChecker.UserProtocol>)
+
+    /// Количество пользователей в хранилище.
+    var count: Int { get }
+
+    /// Возвращает текущего пользователя.
+    ///
+    /// - Returns: Текущий пользователь.
+    func currentUser() -> FirstCourseFinalTaskChecker.UserProtocol
+
+    /// Возвращает пользователя с переданным ID.
+    ///
+    /// - Parameter userID: ID пользователя которого нужно вернуть.
+    /// - Returns: Пользователь если он был найден.
+    /// nil если такого пользователя нет в хранилище.
+    func user(with userID: FirstCourseFinalTaskChecker.GenericIdentifier<FirstCourseFinalTaskChecker.UserProtocol>) -> FirstCourseFinalTaskChecker.UserProtocol?
+
+    /// Возвращает всех пользователей, содержащих переданную строку.
+    ///
+    /// - Parameter searchString: Строка для поиска.
+    /// - Returns: Массив пользователей. Если не нашлось ни одного пользователя, то пустой массив.
+    func findUsers(by searchString: String) -> [FirstCourseFinalTaskChecker.UserProtocol]
+
+    /// Добавляет текущего пользователя в подписчики.
+    ///
+    /// - Parameter userIDToFollow: ID пользователя на которого должен подписаться текущий пользователь.
+    /// - Returns: true если текущий пользователь стал подписчиком пользователя с переданным ID
+    /// или уже являлся им.
+    /// false в случае если в хранилище нет пользователя с переданным ID.
+    func follow(_ userIDToFollow: FirstCourseFinalTaskChecker.GenericIdentifier<FirstCourseFinalTaskChecker.UserProtocol>) -> Bool
+
+    /// Удаляет текущего пользователя из подписчиков.
+    ///
+    /// - Parameter userIDToUnfollow: ID пользователя от которого должен отписаться текущий пользователь.
+    /// - Returns: true если текущий пользователь перестал быть подписчиком пользователя с
+    /// переданным ID или и так не являлся им.
+    /// false в случае если нет пользователя с переданным ID.
+    func unfollow(_ userIDToUnfollow: FirstCourseFinalTaskChecker.GenericIdentifier<FirstCourseFinalTaskChecker.UserProtocol>) -> Bool
+
+    /// Возвращает всех подписчиков пользователя.
+    ///
+    /// - Parameter userID: ID пользователя подписчиков которого нужно вернуть.
+    /// - Returns: Массив пользователей.
+    /// Пустой массив если на пользователя никто не подписан.
+    /// nil если такого пользователя нет.
+    func usersFollowingUser(with userID: FirstCourseFinalTaskChecker.GenericIdentifier<FirstCourseFinalTaskChecker.UserProtocol>) -> [FirstCourseFinalTaskChecker.UserProtocol]?
+
+    /// Возвращает все подписки пользователя.
+    ///
+    /// - Parameter userID: ID пользователя подписки которого нужно вернуть.
+    /// - Returns: Массив пользователей.
+    /// Пустой массив если он ни на кого не подписан.
+    /// nil если такого пользователя нет.
+    func usersFollowedByUser(with userID: FirstCourseFinalTaskChecker.GenericIdentifier<FirstCourseFinalTaskChecker.UserProtocol>) -> [FirstCourseFinalTaskChecker.UserProtocol]?
+}
+
